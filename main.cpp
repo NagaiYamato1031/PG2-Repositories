@@ -4,6 +4,11 @@
 #include <math.h>
 #include "Matrix.h"
 
+#include "Enemy.h"
+#include "Player.h"
+#include "Bullet.h"
+
+bool Enemy::isAlive;
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -25,8 +30,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	RPL.viewport = MakeViewPortMatrix({ 0,0 }, { kWindowWidth,kWindowHeight });
 
 	// 計算用
+	Enemy* enemy1 = new Enemy({ 100,300 });
+	Enemy* enemy2 = new Enemy({ 700,400 });
 
-
+	Player* player = new Player();
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -41,6 +48,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		if (keys[DIK_R] && !preKeys[DIK_R]) {
+			Enemy::isAlive = true;
+		}
+
+		enemy1->Update();
+		enemy2->Update();
+
+		player->Update(keys, preKeys);
+
+		for (int i = 0; i < Player::kBulletNums; i++) {
+			if (enemy1->CheckHitBullet(player->GetBullet(i))) {
+				continue;
+			}
+			else if (enemy2->CheckHitBullet(player->GetBullet(i))) {
+				continue;
+			}
+		}
 
 		///
 		/// ↑更新処理ここまで
@@ -50,7 +74,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
+		enemy1->Draw();
+		enemy2->Draw();
 
+		player->Draw();
 
 		///
 		/// ↑描画処理ここまで
